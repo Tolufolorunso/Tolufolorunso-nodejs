@@ -9,12 +9,14 @@ const POST = 3000;
 const app = http.createServer((request, response) => {
     if (request.url === '/message' || request.url === '/') {
         if (request.method === 'POST') {
-            dataCollected(request, result => {
-                const { message } = result;
+            messageFromForm(request, result => {
+                let { message } = result;
+                message = message.toUpperCase()
                 console.log(message)
                 fs.appendFile('message.txt', message + ', ', error => {
                     if (error) throw error;
-                    response.end(`The message you enter is ${message}`)
+                    response.writeHead(200, { 'Content-Type': 'text/html' });
+                    response.end(`The message you entered is '${message}'`)
                 })
             })
         } else {
@@ -26,7 +28,7 @@ const app = http.createServer((request, response) => {
         }
     } else {
         response.statusCode = 404;
-        response.end('404 Page');
+        response.end('page not found');
     }
 })
 
@@ -36,7 +38,7 @@ app.listen(POST, () => {
     console.log('server started on port: ', POST)
 });
 
-let dataCollected = (request, cb) => {
+let messageFromForm = (request, cb) => {
     const FORMENCODED = 'application/x-www-form-urlencoded';
     if (request.headers['content-type'] === FORMENCODED) {
         let body = '';
