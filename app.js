@@ -1,9 +1,9 @@
 let http = require('http');
-let path = require('path')
-let fs = require('fs')
+let path = require('path');
+let fs = require('fs');
 let { parse } = require('querystring');
 
-const POST = 3000;
+const POST = 8080;
 
 
 const app = http.createServer((request, response) => {
@@ -11,19 +11,19 @@ const app = http.createServer((request, response) => {
         if (request.method === 'POST') {
             messageFromForm(request, result => {
                 let { message } = result;
-                message = message.toUpperCase()
-                console.log(message)
+                message = message.toUpperCase();
+                console.log(message);
                 fs.appendFile('message.txt', message + ', ', error => {
                     if (error) throw error;
                     response.writeHead(200, { 'Content-Type': 'text/html' });
-                    response.end(`The message you entered is '${message}'`)                     
-                })
-            })
+                    response.end(`The message you entered is '${message}'`);                     
+                });
+            });
         } else {
-            fs.readFile(path.join(__dirname, 'public', 'index.html'), (err, data) => {
-                if (err) throw err;
+            fs.readFile(path.join(__dirname, 'public', 'index.html'), (error, data) => {
+                if (error) throw error;
                 response.writeHead(200, { 'Content-Type': 'text/html' });
-                response.end(data)
+                response.end(data);
             });
         }
     } else {
@@ -35,20 +35,20 @@ const app = http.createServer((request, response) => {
 
 
 app.listen(POST, () => {
-    console.log('server started on port: ', POST)
+    console.log('server started on port: ', POST);
 });
 
-let messageFromForm = (request, cb) => {
+let messageFromForm = (request, callback) => {
     const FORMENCODED = 'application/x-www-form-urlencoded';
     if (request.headers['content-type'] === FORMENCODED) {
         let body = '';
-        request.on('data', function (data) {
+        request.on('data', data => {
             body += data.toString();
         });
         request.on('end', () => {
-            cb(parse(body))
+            callback(parse(body));
         });
     } else {
-        cb(null);
+        callback(null);
     }
 }
